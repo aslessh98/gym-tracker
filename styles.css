@@ -1,0 +1,81 @@
+:root{
+  --cube-size: 48px;
+  --gap: 6px;
+  --present: #d4f7d4;
+  --absent: #f7d4d4;
+  --neutral: #f0f0f0;
+  --selected: #cfe8ff;
+}
+
+body{
+  font-family: system-ui, Arial, sans-serif;
+  display:flex;
+  justify-content:center;
+  padding:24px;
+  background:#fff;
+  color:#111;
+}
+
+main{
+  width: 360px;
+}
+
+h1{
+  text-align:center;
+  margin-bottom:12px;
+}
+
+#calendar{
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--gap);
+  margin-bottom:12px;
+}
+
+.day{
+  width:100%;
+  aspect-ratio: 1 / 1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--neutral);
+  border-radius:6px;
+  cursor:pointer;
+  user-select:none;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.05) inset;
+}
+
+.day.other-month{
+  opacity:0.35;
+}
+
+.day.selected{
+  outline: 3px solid var(--selected);
+  transform: translateY(-2px);
+}
+
+.controls{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin-bottom:8px;
+}
+
+button{
+  padding:8px 12px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  background:#fff;
+  cursor:pointer;
+}
+
+button:active{ transform: translateY(1px); }
+
+.present{ background: var(--present) !important; }
+.absent{ background: var(--absent) !important; }
+
+#selected-date{
+  text-align:center;
+  color:#444;
+  font-size:14px;
+}
