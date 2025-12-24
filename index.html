@@ -86,7 +86,9 @@
     window.auth = auth;
   
     console.log('Firebase initialized — window.db ready');
+    window.dispatchEvent(new Event('firebase-ready'));
   </script>
+  
   <script src="app.js"></script>
 </body>
 </html>
