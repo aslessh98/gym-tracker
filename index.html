@@ -13,7 +13,12 @@
 <body>
   <main>
     <h1>Gym Tracker</h1>
-    <div id="month-label" class="month-label">Loading...</div>
+    <!-- Navigation header: previous arrow, month label, next arrow -->
+    <div class="month-nav">
+      <button id="prev-month" class="nav-btn" aria-label="Previous month">‹</button>
+      <div id="month-label" class="month-label">Loading...</div>
+      <button id="next-month" class="nav-btn" aria-label="Next month">›</button>
+    </div>
 
     <!-- Weekday headings -->
     <div id="weekdays" class="weekdays" aria-hidden="true">
