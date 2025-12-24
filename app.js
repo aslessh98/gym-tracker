@@ -1,13 +1,14 @@
-// Simple calendar + localStorage attendance demo
+// Simple calendar + localStorage attendance demo with multi-select
 // Date format used: YYYY-MM-DD
 
 const calendarEl = document.getElementById('calendar');
+const monthLabelEl = document.getElementById('month-label');
 const selectedDateEl = document.getElementById('selected-date');
 const btnPresent = document.getElementById('mark-present');
 const btnAbsent = document.getElementById('mark-absent');
 
-let selected = null; // 'YYYY-MM-DD'
 const STORAGE_KEY = 'gym_attendance_v1';
+let selectedDates = new Set(); // holds 'YYYY-MM-DD' strings
 
 // Load saved attendance from localStorage
 function loadAttendance(){
@@ -20,6 +21,22 @@ function loadAttendance(){
 
 function saveAttendance(obj){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+}
+
+// Format month label MMM-YYYY
+function formatMonthLabel(date){
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${monthNames[date.getMonth()]}-${date.getFullYear()}`;
+}
+
+// Update the Selected: line
+function updateSelectedDisplay(){
+  if(selectedDates.size === 0){
+    selectedDateEl.textContent = 'Selected: none';
+  } else {
+    const arr = Array.from(selectedDates).sort();
+    selectedDateEl.textContent = 'Selected: ' + arr.join(', ');
+  }
 }
 
 // Build calendar for current month
@@ -38,19 +55,20 @@ function buildCalendar(){
 
   const attendance = loadAttendance();
 
-  // 6 rows of 7 = 42 cells (covers all month layouts)
+  // set month label
+  monthLabelEl.textContent = formatMonthLabel(now);
+
+  // 6 rows of 7 = 42 cells
   for(let i=0;i<42;i++){
     const cell = document.createElement('div');
     cell.className = 'day';
     // compute date number and whether it's in this month
     const dayIndex = i - startDay + 1;
-    let cellDate = null;
     if(dayIndex <= 0){
       // previous month
       const d = prevLast + dayIndex;
       cell.textContent = d;
       cell.classList.add('other-month');
-      // compute date string for prev month if needed (not required)
     } else if(dayIndex > totalDays){
       // next month
       const d = dayIndex - totalDays;
@@ -63,7 +81,7 @@ function buildCalendar(){
       const yyyy = year;
       const mm = String(month + 1).padStart(2,'0');
       const dd = String(d).padStart(2,'0');
-      cellDate = `${yyyy}-${mm}-${dd}`;
+      const cellDate = `${yyyy}-${mm}-${dd}`;
       cell.dataset.date = cellDate;
 
       // color if attendance exists
@@ -71,44 +89,52 @@ function buildCalendar(){
       if(status === 'present') cell.classList.add('present');
       if(status === 'absent') cell.classList.add('absent');
 
-      // click to select
+      // click to toggle selection (multi-select)
       cell.addEventListener('click', () => {
-        document.querySelectorAll('.day.selected').forEach(n => n.classList.remove('selected'));
-        cell.classList.add('selected');
-        selected = cellDate;
-        selectedDateEl.textContent = 'Selected: ' + selected;
+        if(selectedDates.has(cellDate)){
+          selectedDates.delete(cellDate);
+          cell.classList.remove('selected');
+        } else {
+          selectedDates.add(cellDate);
+          cell.classList.add('selected');
+        }
+        updateSelectedDisplay();
       });
     }
     calendarEl.appendChild(cell);
   }
+
+  // restore any previously selected dates that are in this month (optional)
+  updateSelectedDisplay();
 }
 
-// Mark selected date as present or absent
+// Mark all selected dates as present or absent
 function mark(status){
-  if(!selected){
-    alert('Please click a date first.');
+  if(selectedDates.size === 0){
+    alert('Please click one or more dates first.');
     return;
   }
   const attendance = loadAttendance();
-  attendance[selected] = status;
-  saveAttendance(attendance);
-  // Update UI immediately
-  document.querySelectorAll('.day').forEach(el => {
-    if(el.dataset.date === selected){
+  const changed = [];
+  selectedDates.forEach(dateStr => {
+    attendance[dateStr] = status;
+    changed.push(dateStr);
+    // update UI cell if present
+    const el = document.querySelector(`.day[data-date="${dateStr}"]`);
+    if(el){
       el.classList.remove('present','absent');
       if(status === 'present') el.classList.add('present');
       if(status === 'absent') el.classList.add('absent');
     }
   });
+  saveAttendance(attendance);
 
-  // OPTIONAL: send to backend instead of localStorage
-  // fetch('https://YOUR_BACKEND_ENDPOINT/mark', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify({ date: selected, status })
-  // }).then(r => r.json()).then(console.log).catch(console.error);
+  // Optionally clear selection after marking. If you want to keep selection, remove the next block.
+  document.querySelectorAll('.day.selected').forEach(n => n.classList.remove('selected'));
+  selectedDates.clear();
+  updateSelectedDisplay();
 
-  alert('Marked ' + selected + ' as ' + status);
+  alert('Marked ' + changed.length + ' day(s) as ' + status);
 }
 
 btnPresent.addEventListener('click', () => mark('present'));
