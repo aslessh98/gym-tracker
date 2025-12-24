@@ -126,7 +126,6 @@ h1{ margin:0; font-size:30px; font-weight:700; letter-spacing:-0.4px; padding:10
   min-height: var(--day-size);
   max-height: var(--day-size);
   width:100%;
-  /*aspect-ratio: 1/1;*/
   display:flex;
   align-items:center;
   justify-content:center;
@@ -225,7 +224,7 @@ h1{ margin:0; font-size:30px; font-weight:700; letter-spacing:-0.4px; padding:10
 
 /* Responsive adjustments */
 @media (max-width:520px){
-  :root { --day-size: 48px; --day-gap: 6px; }
+  :root { --day-size: 45px; --day-gap: 5px; }
   .card{ padding:14px; }
   h1{ font-size:22px; }
   .month-label{ font-size:16px; min-width:110px; padding:6px 10px; }
