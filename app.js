@@ -1,32 +1,29 @@
-// app.js - DOM ready multi-select calendar with localStorage
-
+// app.js - month navigation + multi-select calendar with localStorage
 document.addEventListener('DOMContentLoaded', () => {
   const calendarEl = document.getElementById('calendar');
   const monthLabelEl = document.getElementById('month-label');
   const selectedDateEl = document.getElementById('selected-date');
   const btnPresent = document.getElementById('mark-present');
   const btnAbsent = document.getElementById('mark-absent');
+  const btnPrev = document.getElementById('prev-month');
+  const btnNext = document.getElementById('next-month');
 
-  if(!calendarEl || !monthLabelEl || !selectedDateEl || !btnPresent || !btnAbsent){
-    console.error('One or more required DOM elements are missing. Check index.html IDs.');
+  if(!calendarEl || !monthLabelEl || !selectedDateEl || !btnPresent || !btnAbsent || !btnPrev || !btnNext){
+    console.error('Missing DOM elements. Check index.html IDs.');
     return;
   }
 
   const STORAGE_KEY = 'gym_attendance_v1';
   let selectedDates = new Set();
 
-  function loadAttendance(){
-    try{
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    }catch(e){
-      console.error('Error parsing attendance from localStorage', e);
-      return {};
-    }
-  }
+  // viewDate holds the year and month currently displayed
+  let viewDate = new Date(); // starts at current month
 
-  function saveAttendance(obj){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+  function loadAttendance(){
+    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+    catch(e){ console.error('Error parsing attendance', e); return {}; }
   }
+  function saveAttendance(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }
 
   function formatMonthLabel(date){
     const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -34,19 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateSelectedDisplay(){
-    if(selectedDates.size === 0){
-      selectedDateEl.textContent = 'Selected: none';
-    } else {
-      const arr = Array.from(selectedDates).sort();
-      selectedDateEl.textContent = 'Selected: ' + arr.join(', ');
-    }
+    if(selectedDates.size === 0) selectedDateEl.textContent = 'Selected: none';
+    else selectedDateEl.textContent = 'Selected: ' + Array.from(selectedDates).sort().join(', ');
   }
 
-  function buildCalendar(){
+  // Build calendar for a specific year and month (0-based month)
+  function buildCalendarFor(year, month){
     calendarEl.innerHTML = '';
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
     const first = new Date(year, month, 1);
     const last = new Date(year, month + 1, 0);
     const startDay = first.getDay();
@@ -54,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevLast = new Date(year, month, 0).getDate();
     const attendance = loadAttendance();
 
-    monthLabelEl.textContent = formatMonthLabel(now);
+    monthLabelEl.textContent = formatMonthLabel(new Date(year, month, 1));
 
     for(let i=0;i<42;i++){
       const cell = document.createElement('div');
@@ -95,14 +86,24 @@ document.addEventListener('DOMContentLoaded', () => {
       calendarEl.appendChild(cell);
     }
     updateSelectedDisplay();
-    console.log('Calendar built for', monthLabelEl.textContent);
+  }
+
+  function buildCalendar(){
+    buildCalendarFor(viewDate.getFullYear(), viewDate.getMonth());
+  }
+
+  function changeMonth(delta){
+    // delta = -1 for prev, +1 for next
+    viewDate.setMonth(viewDate.getMonth() + delta);
+    // clear selection when changing months (optional)
+    document.querySelectorAll('.day.selected').forEach(n => n.classList.remove('selected'));
+    selectedDates.clear();
+    updateSelectedDisplay();
+    buildCalendar();
   }
 
   function mark(status){
-    if(selectedDates.size === 0){
-      alert('Please click one or more dates first.');
-      return;
-    }
+    if(selectedDates.size === 0){ alert('Please click one or more dates first.'); return; }
     const attendance = loadAttendance();
     const changed = [];
     selectedDates.forEach(dateStr => {
@@ -116,18 +117,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     saveAttendance(attendance);
-
-    // clear selection
     document.querySelectorAll('.day.selected').forEach(n => n.classList.remove('selected'));
     selectedDates.clear();
     updateSelectedDisplay();
-
-    console.log('Marked', changed.length, 'days as', status);
     alert('Marked ' + changed.length + ' day(s) as ' + status);
   }
 
   btnPresent.addEventListener('click', () => mark('present'));
   btnAbsent.addEventListener('click', () => mark('absent'));
+  btnPrev.addEventListener('click', () => changeMonth(-1));
+  btnNext.addEventListener('click', () => changeMonth(1));
 
+  // initial render
   buildCalendar();
 });
