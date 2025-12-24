@@ -33,7 +33,7 @@ body{
 }
 
 /* subtle page padding */
-.page-bg{ padding:28px; width:100%; display:flex; justify-content:center; }
+.page-bg{ padding:14px; width:100%; display:flex; justify-content:center; }
 
 /* Card container */
 .card{
@@ -50,7 +50,7 @@ body{
 
 /* Header layout */
 .header{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap; }
-.title-wrap{ display:flex; flex-direction:column; gap:6px; align-items:center; width:100%; }
+.title-wrap{ display:flex; flex-direction:column; gap:6px; align-items:center; width:100%; margin-top: 50px; }
 
 /* Title and month */
 h1{ margin:0; font-size:30px; font-weight:700; letter-spacing:-0.4px; padding:10px 16px; }
@@ -256,8 +256,8 @@ html, body {
   justify-content: center !important;
   align-items: center !important;
   width: 100%;
-  padding-left: 28px;   /* keep some breathing room on very small screens */
-  padding-right: 28px;
+  padding-left: 14px;   /* keep some breathing room on very small screens */
+  padding-right: 14px;
   box-sizing: border-box;
 }
 
