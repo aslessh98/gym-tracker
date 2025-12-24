@@ -24,20 +24,11 @@ main{
 }
 
 /* Title and month label sizes */
-h1{
-  text-align:center;
-  margin-bottom:6px;
-  font-size:28px; /* main title */
-  font-weight:700;
-}
+h1{ text-align:center; margin: 12px 0 8px; font-size:28px; font-weight:700; padding-left:8px; padding-right:8px; }
 
-.month-label{
-  text-align:center;
-  font-weight:600;
-  margin-bottom:8px;
-  color:#333;
-  font-size:22px; /* ~80% of 28px */
-}
+.month-nav{ display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px; /* space before weekdays */ padding-left:8px; padding-right:8px; }
+
+.month-label{ text-align:center; font-weight:600; color:#333; font-size:22px; padding:6px 10px; } /* Arrow buttons */ .nav-btn{ display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:8px; border:1px solid rgba(0,0,0,0.08); background:linear-gradient(180deg, #fff, #f6f6ff); cursor:pointer; font-size:20px; color:#333; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: transform 120ms ease, box-shadow 120ms ease; } .nav-btn:hover{ transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
 
 /* Weekday headings */
 .weekdays{
