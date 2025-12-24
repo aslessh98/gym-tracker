@@ -1,14 +1,34 @@
 // app.js - enhanced UI with month navigation, today highlight, multi-select
+// Final updated file with Firestore + Auth integration and safe startup sequencing.
 
-// quick test at top of app.js
-if (window.db) {
-  console.log('Firestore ready:', window.db);
-} else {
-  console.warn('Firestore not found on window.db — check firebase init script');
-}
+// Helper: promise that resolves when DOM is ready
+const domReady = new Promise(resolve => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => resolve());
+  } else {
+    resolve();
+  }
+});
 
+// Helper: promise that resolves when Firebase dispatches the event or window.db exists
+const firebaseReady = new Promise(resolve => {
+  if (window.db) {
+    resolve();
+  } else {
+    window.addEventListener('firebase-ready', () => resolve(), { once: true });
+  }
+});
 
-document.addEventListener('DOMContentLoaded', () => {
+// Start when both are ready
+Promise.all([domReady, firebaseReady]).then(() => {
+  console.log('DOM and Firebase ready — starting app');
+  initApp();
+}).catch(err => {
+  console.error('Failed to start app:', err);
+});
+
+async function initApp() {
+  // DOM elements
   const calendarEl = document.getElementById('calendar');
   const monthLabelEl = document.getElementById('month-label');
   const selectedDateEl = document.getElementById('selected-date');
@@ -22,22 +42,60 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
+  // Optional auth UI container (if present in your HTML)
+  const authArea = document.getElementById('auth-area');
+
   const STORAGE_KEY = 'gym_attendance_v1';
   let selectedDates = new Set();
   let viewDate = new Date(); // current view month
 
-  function loadAttendance(){
+  // LocalStorage fallback helpers
+  function loadAttendanceLocal(){
     try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
     catch(e){ console.error('Error parsing attendance', e); return {}; }
   }
-  function saveAttendance(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }
+  function saveAttendanceLocal(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }
 
+  // Firestore helpers (dynamic imports so we can use CDN modules)
+  async function saveAttendanceToFirestore(uid, dateISO, status){
+    try{
+      const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js');
+      const ref = doc(window.db, 'users', uid, 'attendance', dateISO);
+      await setDoc(ref, { status: status, updatedAt: Date.now() });
+      return true;
+    } catch(err){
+      console.error('Failed to save to Firestore', err);
+      return false;
+    }
+  }
+
+  async function loadAttendanceFromFirestore(uid, monthPrefix){
+    try{
+      const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js');
+      const start = monthPrefix + '-01';
+      const end = monthPrefix + '-31';
+      const q = query(collection(window.db, 'users', uid, 'attendance'),
+                      where('__name__', '>=', start),
+                      where('__name__', '<=', end));
+      const snap = await getDocs(q);
+      const out = {};
+      snap.forEach(docSnap => {
+        const data = docSnap.data();
+        out[docSnap.id] = data.status;
+      });
+      return out;
+    } catch(err){
+      console.error('Failed to load from Firestore', err);
+      return {};
+    }
+  }
+
+  // Format helpers
   function formatMonthLabel(date){
     const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return `${monthNames[date.getMonth()]}-${date.getFullYear()}`;
   }
 
-  // helper: convert "YYYY-MM-DD" -> "DD-MMM-YY"
   function formatDisplayDate(isoDate) {
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const parts = isoDate.split('-'); // [YYYY, MM, DD]
@@ -48,47 +106,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const shortYear = yyyy.slice(-2);
     return `${dd}-${months[mm]}-${shortYear}`;
   }
-  
-  // replace your existing updateSelectedDisplay() with this
+
   function updateSelectedDisplay(){
     if(selectedDates.size === 0){
       selectedDateEl.textContent = 'Selected: none';
     } else {
-      // sort by ISO date so chronological order is preserved
       const arr = Array.from(selectedDates).sort();
-      // map to DD-MMM-YY
       const formatted = arr.map(d => formatDisplayDate(d));
       selectedDateEl.textContent = 'Selected: ' + formatted.join(', ');
     }
   }
 
-
-  // animate month change
-  function animateMonthChange(direction, callback){
+  // animate month change (supports async callback)
+  async function animateMonthChange(direction, callback){
     calendarEl.style.transition = 'transform 260ms cubic-bezier(.2,.9,.2,1), opacity 200ms';
     calendarEl.style.opacity = '0';
     calendarEl.style.transform = `translateX(${direction * 20}px)`;
-    setTimeout(() => {
-      callback();
-      calendarEl.style.transform = `translateX(${-direction * 20}px)`;
-      setTimeout(() => {
-        calendarEl.style.opacity = '1';
-        calendarEl.style.transform = 'translateX(0)';
-        setTimeout(() => {
-          calendarEl.style.transition = '';
-        }, 260);
-      }, 20);
-    }, 200);
+    await new Promise(r => setTimeout(r, 200));
+    await callback();
+    calendarEl.style.transform = `translateX(${-direction * 20}px)`;
+    await new Promise(r => setTimeout(r, 20));
+    calendarEl.style.opacity = '1';
+    calendarEl.style.transform = 'translateX(0)';
+    await new Promise(r => setTimeout(r, 260));
+    calendarEl.style.transition = '';
   }
 
-  function buildCalendarFor(year, month){
+  // Build calendar for a given year/month. This is async because it may load from Firestore.
+  async function buildCalendarFor(year, month){
     calendarEl.innerHTML = '';
     const first = new Date(year, month, 1);
     const last = new Date(year, month + 1, 0);
     const startDay = first.getDay();
     const totalDays = last.getDate();
     const prevLast = new Date(year, month, 0).getDate();
-    const attendance = loadAttendance();
+
+    // Default to local attendance
+    let attendance = loadAttendanceLocal();
+
+    // If signed in, try to load from Firestore for this month
+    const user = window.auth && window.auth.currentUser;
+    if(user){
+      const monthPrefix = `${year}-${String(month+1).padStart(2,'0')}`;
+      const remote = await loadAttendanceFromFirestore(user.uid, monthPrefix);
+      // merge remote over local so remote wins
+      attendance = Object.assign({}, attendance, remote);
+    }
+
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 
@@ -137,8 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSelectedDisplay();
   }
 
-  function buildCalendar(){
-    buildCalendarFor(viewDate.getFullYear(), viewDate.getMonth());
+  async function buildCalendar(){
+    await buildCalendarFor(viewDate.getFullYear(), viewDate.getMonth());
   }
 
   function changeMonth(delta){
@@ -148,31 +212,54 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.day.selected').forEach(n => n.classList.remove('selected'));
     selectedDates.clear();
     updateSelectedDisplay();
+    // animateMonthChange accepts async callback
     animateMonthChange(dir, buildCalendar);
   }
 
-  function mark(status){
+  // Mark function: writes to Firestore when signed in, otherwise localStorage
+  async function mark(status){
     if(selectedDates.size === 0){ alert('Please click one or more dates first.'); return; }
-    const attendance = loadAttendance();
+    const user = window.auth && window.auth.currentUser;
     const changed = [];
-    selectedDates.forEach(dateStr => {
-      attendance[dateStr] = status;
-      changed.push(dateStr);
-      const el = document.querySelector(`.day[data-date="${dateStr}"]`);
-      if(el){
-        el.classList.remove('present','absent');
-        if(status === 'present') el.classList.add('present');
-        if(status === 'absent') el.classList.add('absent');
+
+    if(user){
+      const uid = user.uid;
+      // write each date to Firestore (simple loop; small sets are fine)
+      for(const dateStr of selectedDates){
+        const ok = await saveAttendanceToFirestore(uid, dateStr, status);
+        if(ok){
+          changed.push(dateStr);
+          const el = document.querySelector(`.day[data-date="${dateStr}"]`);
+          if(el){
+            el.classList.remove('present','absent');
+            if(status === 'present') el.classList.add('present');
+            if(status === 'absent') el.classList.add('absent');
+          }
+        } else {
+          showToast('Failed to save some dates. Check console.');
+        }
       }
-    });
-    saveAttendance(attendance);
+    } else {
+      // fallback to localStorage
+      const attendance = loadAttendanceLocal();
+      selectedDates.forEach(dateStr => {
+        attendance[dateStr] = status;
+        changed.push(dateStr);
+        const el = document.querySelector(`.day[data-date="${dateStr}"]`);
+        if(el){
+          el.classList.remove('present','absent');
+          if(status === 'present') el.classList.add('present');
+          if(status === 'absent') el.classList.add('absent');
+        }
+      });
+      saveAttendanceLocal(attendance);
+    }
+
     document.querySelectorAll('.day.selected').forEach(n => n.classList.remove('selected'));
     selectedDates.clear();
     updateSelectedDisplay();
-    // subtle confirmation
     const msg = `Marked ${changed.length} day(s) as ${status}`;
     console.log(msg);
-    // small non-blocking toast
     showToast(msg);
   }
 
@@ -202,11 +289,67 @@ document.addEventListener('DOMContentLoaded', () => {
     t._hideTimer = setTimeout(()=>{ t.style.opacity = '0'; }, 1600);
   }
 
+  // Attach UI handlers
   btnPresent.addEventListener('click', () => mark('present'));
   btnAbsent.addEventListener('click', () => mark('absent'));
   btnPrev.addEventListener('click', () => changeMonth(-1));
   btnNext.addEventListener('click', () => changeMonth(1));
 
-  // initial render
-  buildCalendar();
-});
+  // --- Authentication UI and listener ---
+  // Create simple sign-in/out buttons if authArea exists
+  if(authArea){
+    const signInBtn = document.createElement('button');
+    signInBtn.id = 'sign-in-google';
+    signInBtn.textContent = 'Sign in with Google';
+    signInBtn.style.marginRight = '8px';
+
+    const signOutBtn = document.createElement('button');
+    signOutBtn.id = 'sign-out';
+    signOutBtn.textContent = 'Sign out';
+    signOutBtn.style.display = 'none';
+
+    authArea.appendChild(signInBtn);
+    authArea.appendChild(signOutBtn);
+
+    signInBtn.addEventListener('click', async () => {
+      try {
+        const { GoogleAuthProvider, signInWithPopup } = await import('https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js');
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(window.auth, provider);
+      } catch(err){
+        console.error('Sign-in failed', err);
+        alert('Sign-in failed: ' + (err.message || err));
+      }
+    });
+
+    signOutBtn.addEventListener('click', async () => {
+      try {
+        await window.auth.signOut();
+      } catch(err){
+        console.error('Sign-out failed', err);
+      }
+    });
+  }
+
+  // React to auth state changes: reload calendar when user signs in/out
+  if(window.auth && typeof window.auth.onAuthStateChanged === 'function'){
+    window.auth.onAuthStateChanged(async (user) => {
+      if(authArea){
+        const signInBtn = document.getElementById('sign-in-google');
+        const signOutBtn = document.getElementById('sign-out');
+        if(user){
+          if(signInBtn) signInBtn.style.display = 'none';
+          if(signOutBtn) signOutBtn.style.display = 'inline-block';
+        } else {
+          if(signInBtn) signInBtn.style.display = 'inline-block';
+          if(signOutBtn) signOutBtn.style.display = 'none';
+        }
+      }
+      // reload current month (buildCalendar is async)
+      await buildCalendar();
+    });
+  }
+
+  // initial render (will load local or remote depending on auth state)
+  await buildCalendar();
+}
