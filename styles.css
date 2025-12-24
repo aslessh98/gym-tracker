@@ -242,3 +242,53 @@ h1{ margin:0; font-size:30px; font-weight:700; letter-spacing:-0.4px; padding:10
   .calendar { min-height: calc(6 * var(--day-size) + 5 * var(--day-gap) + 18px); margin-bottom: 26px; }
   /*.day.selected { transform: none !important; box-shadow: 0 18px 40px rgba(79,70,229,0.14); }*/
 }
+
+/* --- Quick centering fixes --- */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Ensure the page wrapper always centers the card */
+.page-bg {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100%;
+  padding-left: 28px;   /* keep some breathing room on very small screens */
+  padding-right: 28px;
+  box-sizing: border-box;
+}
+
+/* Make the card centered regardless of other layout changes */
+.card {
+  margin: 0 auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;   /* clear any stray transforms */
+}
+
+/* Prevent calendar or other elements from shifting the layout */
+.calendar, .header, .title-wrap {
+  transform: none !important;
+}
+
+/* If a toast or fixed element is present, keep it centered and not affecting layout */
+#toast-msg {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+}
+
+/* Ensure header content stays centered on narrow screens */
+.header {
+  justify-content: center !important;
+}
+
+/* Safety: remove accidental large negative margins on direct children */
+.page-bg > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
