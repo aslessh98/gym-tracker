@@ -75,6 +75,15 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+  
+    // expose for non-module scripts (your app.js)
+    window.firebaseApp = app;
+    window.db = db;
+    window.auth = auth;
+  
+    console.log('Firebase initialized — window.db ready');
   </script>
   <script src="app.js"></script>
 </body>
