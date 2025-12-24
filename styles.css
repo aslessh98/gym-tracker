@@ -130,3 +130,76 @@ h1{ margin:0; font-size:30px; font-weight:700; letter-spacing:-0.4px; padding:6p
   .weekdays{ font-size:12px; }
   .btn{ padding:8px 10px; font-size:13px; }
 }
+
+/* --- Layout safety: prevent visual overflow and add breathing room --- */
+.card {
+  /* allow transformed children to be visible but keep layout stable */
+  overflow: visible; /* ensures hover/selection transforms don't get clipped */
+}
+
+/* ensure calendar area reserves space so buttons don't overlap */
+.calendar {
+  padding: 12px;           /* keeps inner spacing consistent */
+  margin-bottom: 18px;     /* extra gap so transformed days don't hit controls */
+  overflow: visible;       /* allow day transform to show */
+}
+
+/* push controls further down to avoid overlap on small screens */
+.controls {
+  margin-top: 18px;        /* increase gap between calendar and buttons */
+  z-index: 1;              /* keep controls above background but below selected days */
+  position: relative;
+}
+
+/* --- Legend centering --- */
+.legend {
+  justify-content: center; /* center items horizontally */
+  width: 100%;
+  gap: 14px;
+  padding-top: 6px;
+}
+
+/* --- Day stacking and selection visuals --- */
+.day {
+  position: relative;      /* enable z-index control */
+  z-index: 1;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 160ms ease, filter 160ms ease;
+}
+
+/* make selected days pop more (brighter + lifted) */
+.day.selected {
+  z-index: 5; /* sit above neighbors and controls */
+  transform: translateY(-10px) scale(1.04);
+  box-shadow: 0 26px 60px rgba(79,70,229,0.16);
+  filter: saturate(1.08) brightness(1.03);
+  border: 2px solid rgba(124,58,237,0.16);
+}
+
+/* subtle stronger hover so selection is obvious */
+.day:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 44px rgba(11,18,32,0.09);
+}
+
+/* slightly intensify present/absent when selected */
+.day.selected.present {
+  background: linear-gradient(180deg, #eafcec, #cff6cf) !important;
+  border-color: rgba(34,197,94,0.14);
+}
+.day.selected.absent {
+  background: linear-gradient(180deg, #fff3f2, #ffd9d6) !important;
+  border-color: rgba(239,68,68,0.12);
+}
+
+/* ensure "today" selection is also stronger */
+.day.selected.today {
+  background: linear-gradient(180deg, #fff9e6, #fff3b8) !important;
+  border-color: rgba(6,182,212,0.18);
+}
+
+/* --- Small responsive tweak so calendar never collides with controls on tiny screens --- */
+@media (max-width:420px){
+  .calendar { margin-bottom: 22px; }
+  .day.selected { transform: translateY(-8px) scale(1.03); }
+  .controls { margin-top: 20px; }
+}
