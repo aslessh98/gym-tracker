@@ -1,4 +1,13 @@
 // app.js - enhanced UI with month navigation, today highlight, multi-select
+
+// quick test at top of app.js
+if (window.db) {
+  console.log('Firestore ready:', window.db);
+} else {
+  console.warn('Firestore not found on window.db — check firebase init script');
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
   const calendarEl = document.getElementById('calendar');
   const monthLabelEl = document.getElementById('month-label');
