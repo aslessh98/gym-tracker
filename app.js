@@ -1,4 +1,4 @@
-// app.js - month navigation + multi-select calendar with localStorage
+// app.js - enhanced UI with month navigation, today highlight, multi-select
 document.addEventListener('DOMContentLoaded', () => {
   const calendarEl = document.getElementById('calendar');
   const monthLabelEl = document.getElementById('month-label');
@@ -15,9 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const STORAGE_KEY = 'gym_attendance_v1';
   let selectedDates = new Set();
-
-  // viewDate holds the year and month currently displayed
-  let viewDate = new Date(); // starts at current month
+  let viewDate = new Date(); // current view month
 
   function loadAttendance(){
     try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
@@ -35,7 +33,24 @@ document.addEventListener('DOMContentLoaded', () => {
     else selectedDateEl.textContent = 'Selected: ' + Array.from(selectedDates).sort().join(', ');
   }
 
-  // Build calendar for a specific year and month (0-based month)
+  // animate month change
+  function animateMonthChange(direction, callback){
+    calendarEl.style.transition = 'transform 260ms cubic-bezier(.2,.9,.2,1), opacity 200ms';
+    calendarEl.style.opacity = '0';
+    calendarEl.style.transform = `translateX(${direction * 20}px)`;
+    setTimeout(() => {
+      callback();
+      calendarEl.style.transform = `translateX(${-direction * 20}px)`;
+      setTimeout(() => {
+        calendarEl.style.opacity = '1';
+        calendarEl.style.transform = 'translateX(0)';
+        setTimeout(() => {
+          calendarEl.style.transition = '';
+        }, 260);
+      }, 20);
+    }, 200);
+  }
+
   function buildCalendarFor(year, month){
     calendarEl.innerHTML = '';
     const first = new Date(year, month, 1);
@@ -44,6 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalDays = last.getDate();
     const prevLast = new Date(year, month, 0).getDate();
     const attendance = loadAttendance();
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 
     monthLabelEl.textContent = formatMonthLabel(new Date(year, month, 1));
 
@@ -71,7 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const status = attendance[cellDate];
         if(status === 'present') cell.classList.add('present');
         if(status === 'absent') cell.classList.add('absent');
+        if(cellDate === todayStr) cell.classList.add('today');
 
+        // toggle selection
         cell.addEventListener('click', () => {
           if(selectedDates.has(cellDate)){
             selectedDates.delete(cellDate);
@@ -93,13 +112,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function changeMonth(delta){
-    // delta = -1 for prev, +1 for next
+    const dir = delta; // -1 or +1
     viewDate.setMonth(viewDate.getMonth() + delta);
-    // clear selection when changing months (optional)
+    // clear selection when changing months
     document.querySelectorAll('.day.selected').forEach(n => n.classList.remove('selected'));
     selectedDates.clear();
     updateSelectedDisplay();
-    buildCalendar();
+    animateMonthChange(dir, buildCalendar);
   }
 
   function mark(status){
@@ -120,7 +139,37 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.day.selected').forEach(n => n.classList.remove('selected'));
     selectedDates.clear();
     updateSelectedDisplay();
-    alert('Marked ' + changed.length + ' day(s) as ' + status);
+    // subtle confirmation
+    const msg = `Marked ${changed.length} day(s) as ${status}`;
+    console.log(msg);
+    // small non-blocking toast
+    showToast(msg);
+  }
+
+  // small toast helper
+  function showToast(text){
+    let t = document.getElementById('toast-msg');
+    if(!t){
+      t = document.createElement('div');
+      t.id = 'toast-msg';
+      t.style.position = 'fixed';
+      t.style.left = '50%';
+      t.style.bottom = '28px';
+      t.style.transform = 'translateX(-50%)';
+      t.style.background = 'rgba(11,18,32,0.9)';
+      t.style.color = 'white';
+      t.style.padding = '10px 14px';
+      t.style.borderRadius = '10px';
+      t.style.fontWeight = '700';
+      t.style.zIndex = '9999';
+      t.style.opacity = '0';
+      t.style.transition = 'opacity 220ms';
+      document.body.appendChild(t);
+    }
+    t.textContent = text;
+    t.style.opacity = '1';
+    clearTimeout(t._hideTimer);
+    t._hideTimer = setTimeout(()=>{ t.style.opacity = '0'; }, 1600);
   }
 
   btnPresent.addEventListener('click', () => mark('present'));
