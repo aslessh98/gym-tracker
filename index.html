@@ -5,43 +5,54 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Gym Tracker</title>
 
-  <!-- Favicon as inline SVG data URL -->
-  <!--<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%234f46e5'/%3E%3Ctext x='50' y='65' font-size='60' text-anchor='middle' fill='white'%3EG%3C/text%3E%3C/svg%3E"> -->
+  <!-- Google font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Favicon (keeps your uploaded icon if you added files) -->
   <link rel="icon" href="/favicon.ico">
+
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <main>
-    <h1>Gym Tracker</h1>
-    <!-- Navigation header: previous arrow, month label, next arrow -->
-    <div class="month-nav">
-      <button id="prev-month" class="nav-btn" aria-label="Previous month">‹</button>
-      <div id="month-label" class="month-label">Loading...</div>
-      <button id="next-month" class="nav-btn" aria-label="Next month">›</button>
-    </div>
+  <div class="page-bg">
+    <main class="card">
+      <header class="header">
+        <div class="title-wrap">
+          <h1>Gym Tracker</h1>
+          <div id="month-nav-row" class="month-nav">
+            <button id="prev-month" class="nav-btn" aria-label="Previous month">‹</button>
+            <div id="month-label" class="month-label">Loading...</div>
+            <button id="next-month" class="nav-btn" aria-label="Next month">›</button>
+          </div>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="dot present-dot"></span> Present</span>
+          <span class="legend-item"><span class="dot absent-dot"></span> Absent</span>
+          <span class="legend-item"><span class="dot today-dot"></span> Today</span>
+        </div>
+      </header>
 
-    <!-- Weekday headings -->
-    <div id="weekdays" class="weekdays" aria-hidden="true">
-      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-    </div>
+      <div id="weekdays" class="weekdays" aria-hidden="true">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
 
-    <div id="calendar" aria-label="Calendar"></div>
+      <div id="calendar" class="calendar" aria-label="Calendar"></div>
 
-    <div class="controls">
-      <button id="mark-present" class="btn btn-present">
-        <!-- small inline SVG icon + text -->
-        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
-        Mark Attendance
-      </button>
+      <div class="controls">
+        <button id="mark-present" class="btn btn-present">
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
+          Mark Attendance
+        </button>
 
-      <button id="mark-absent" class="btn btn-absent">
-        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
-        Mark Absence
-      </button>
-    </div>
+        <button id="mark-absent" class="btn btn-absent">
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 6.4L17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
+          Mark Absence
+        </button>
+      </div>
 
-    <p id="selected-date">Selected: none</p>
-  </main>
+      <p id="selected-date" class="selected-line">Selected: none</p>
+    </main>
+  </div>
 
   <script src="app.js"></script>
 </body>
