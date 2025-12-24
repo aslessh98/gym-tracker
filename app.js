@@ -1,8 +1,14 @@
 // app.js - enhanced UI with month navigation, today highlight, multi-select
 
-// Wait for both Firebase init and DOMContentLoaded before starting the app.
-// The Firebase init script dispatches 'firebase-ready' after it sets window.db.
-function initApp() {
+// quick test at top of app.js
+if (window.db) {
+  console.log('Firestore ready:', window.db);
+} else {
+  console.warn('Firestore not found on window.db — check firebase init script');
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
   const calendarEl = document.getElementById('calendar');
   const monthLabelEl = document.getElementById('month-label');
   const selectedDateEl = document.getElementById('selected-date');
@@ -43,15 +49,19 @@ function initApp() {
     return `${dd}-${months[mm]}-${shortYear}`;
   }
   
+  // replace your existing updateSelectedDisplay() with this
   function updateSelectedDisplay(){
     if(selectedDates.size === 0){
       selectedDateEl.textContent = 'Selected: none';
     } else {
+      // sort by ISO date so chronological order is preserved
       const arr = Array.from(selectedDates).sort();
+      // map to DD-MMM-YY
       const formatted = arr.map(d => formatDisplayDate(d));
       selectedDateEl.textContent = 'Selected: ' + formatted.join(', ');
     }
   }
+
 
   // animate month change
   function animateMonthChange(direction, callback){
@@ -159,8 +169,10 @@ function initApp() {
     document.querySelectorAll('.day.selected').forEach(n => n.classList.remove('selected'));
     selectedDates.clear();
     updateSelectedDisplay();
+    // subtle confirmation
     const msg = `Marked ${changed.length} day(s) as ${status}`;
     console.log(msg);
+    // small non-blocking toast
     showToast(msg);
   }
 
@@ -197,30 +209,4 @@ function initApp() {
 
   // initial render
   buildCalendar();
-}
-
-// Helper: promise that resolves when DOM is ready
-const domReady = new Promise(resolve => {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => resolve());
-  } else {
-    resolve();
-  }
-});
-
-// Helper: promise that resolves when Firebase dispatches the event or window.db exists
-const firebaseReady = new Promise(resolve => {
-  if (window.db) {
-    resolve();
-  } else {
-    window.addEventListener('firebase-ready', () => resolve(), { once: true });
-  }
-});
-
-// Start when both are ready
-Promise.all([domReady, firebaseReady]).then(() => {
-  console.log('DOM and Firebase ready — starting app');
-  initApp();
-}).catch(err => {
-  console.error('Failed to start app:', err);
 });
