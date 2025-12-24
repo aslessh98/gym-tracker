@@ -28,10 +28,31 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${monthNames[date.getMonth()]}-${date.getFullYear()}`;
   }
 
-  function updateSelectedDisplay(){
-    if(selectedDates.size === 0) selectedDateEl.textContent = 'Selected: none';
-    else selectedDateEl.textContent = 'Selected: ' + Array.from(selectedDates).sort().join(', ');
+  // helper: convert "YYYY-MM-DD" -> "DD-MMM-YY"
+  function formatDisplayDate(isoDate) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const parts = isoDate.split('-'); // [YYYY, MM, DD]
+    if(parts.length !== 3) return isoDate;
+    const yyyy = parts[0];
+    const mm = parseInt(parts[1], 10) - 1;
+    const dd = parts[2];
+    const shortYear = yyyy.slice(-2);
+    return `${dd}-${months[mm]}-${shortYear}`;
   }
+  
+  // replace your existing updateSelectedDisplay() with this
+  function updateSelectedDisplay(){
+    if(selectedDates.size === 0){
+      selectedDateEl.textContent = 'Selected: none';
+    } else {
+      // sort by ISO date so chronological order is preserved
+      const arr = Array.from(selectedDates).sort();
+      // map to DD-MMM-YY
+      const formatted = arr.map(d => formatDisplayDate(d));
+      selectedDateEl.textContent = 'Selected: ' + formatted.join(', ');
+    }
+  }
+
 
   // animate month change
   function animateMonthChange(direction, callback){
