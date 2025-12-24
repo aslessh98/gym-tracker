@@ -5,8 +5,11 @@
   --absent: #f7d4d4;
   --neutral: #f0f0f0;
   --selected: #cfe8ff;
+  --accent: #4f46e5; /* indigo */
+  --accent-2: #06b6d4; /* teal */
 }
 
+/* Layout */
 body{
   font-family: system-ui, Arial, sans-serif;
   display:flex;
@@ -20,11 +23,35 @@ main{
   width: 360px;
 }
 
+/* Title and month label sizes */
 h1{
   text-align:center;
-  margin-bottom:12px;
+  margin-bottom:6px;
+  font-size:28px; /* main title */
+  font-weight:700;
 }
 
+.month-label{
+  text-align:center;
+  font-weight:600;
+  margin-bottom:8px;
+  color:#333;
+  font-size:22px; /* ~80% of 28px */
+}
+
+/* Weekday headings */
+.weekdays{
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--gap);
+  margin-bottom:6px;
+  color:#555;
+  font-weight:600;
+  font-size:13px;
+  text-align:center;
+}
+
+/* Calendar grid */
 #calendar{
   display:grid;
   grid-template-columns: repeat(7, 1fr);
@@ -43,6 +70,7 @@ h1{
   cursor:pointer;
   user-select:none;
   box-shadow: 0 1px 0 rgba(0,0,0,0.05) inset;
+  transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
 .day.other-month{
@@ -54,6 +82,7 @@ h1{
   transform: translateY(-2px);
 }
 
+/* Buttons area */
 .controls{
   display:flex;
   gap:8px;
@@ -61,16 +90,37 @@ h1{
   margin-bottom:8px;
 }
 
-button{
+/* Button base */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
   padding:8px 12px;
-  border-radius:6px;
-  border:1px solid #ccc;
-  background:#fff;
+  border-radius:10px;
+  border: none;
   cursor:pointer;
+  font-weight:600;
+  color:white;
+  box-shadow: 0 6px 18px rgba(79,70,229,0.12);
+  transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
-button:active{ transform: translateY(1px); }
+/* Present button style */
+.btn-present{
+  background: linear-gradient(135deg, var(--accent), #7c3aed);
+}
+.btn-present:hover{ transform: translateY(-3px); box-shadow: 0 10px 24px rgba(79,70,229,0.18); }
 
+/* Absent button style */
+.btn-absent{
+  background: linear-gradient(135deg, #ef4444, #f97316);
+}
+.btn-absent:hover{ transform: translateY(-3px); box-shadow: 0 10px 24px rgba(249,115,22,0.18); }
+
+/* Small icon color inside button */
+.btn svg { color: rgba(255,255,255,0.95); }
+
+/* Attendance colors */
 .present{ background: var(--present) !important; }
 .absent{ background: var(--absent) !important; }
 
@@ -79,11 +129,3 @@ button:active{ transform: translateY(1px); }
   color:#444;
   font-size:14px;
 }
-
-.month-label{
-  text-align:center;
-  font-weight:600;
-  margin-bottom:8px;
-  color:#333;
-}
-
