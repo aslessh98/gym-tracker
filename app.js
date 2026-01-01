@@ -89,7 +89,7 @@ async function initApp() {
     }
 
     // Always (re)build calendar AFTER auth state is known
-    await buildCalendar();
+    // await buildCalendar();
   });
 
   
