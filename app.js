@@ -34,19 +34,11 @@ async function initApp() {
   console.log("initApp started");
   
   const {
-    setPersistence,
-    browserLocalPersistence,
     onAuthStateChanged,
     getRedirectResult,
-    GoogleAuthProvider,
     signInWithRedirect,
-    signInWithPopup,
     signOut
   } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
-  
-  // make sure persistence is set
-  await setPersistence(window.auth, browserLocalPersistence);
-  console.log("Auth persistence set to LOCAL");
   
   // listen for auth state changes
   onAuthStateChanged(window.auth, (user) => {
