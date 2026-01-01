@@ -35,33 +35,62 @@ Promise.all([domReady, firebaseReady]).then(() => {
 
 async function initApp() {
 
-  console.log('initApp started');
+  console.log('🚀 initApp started');
 
-    // 🔐 Listen for Firebase Auth state (THIS IS THE SOURCE OF TRUTH)
-  const { onAuthStateChanged } =
-    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+  // --- Firebase Auth setup ---
+  const {
+    setPersistence,
+    browserLocalPersistence,
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithRedirect,
+    signOut
+  } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
 
-  onAuthStateChanged(window.auth, (user) => {
-    if (user) {
-      console.log('✅ Auth restored. UID:', user.uid);
-    } else {
-      console.log('❌ No user signed in');
-    }
+  // Ensure login persists across reloads / redirects
+  await setPersistence(window.auth, browserLocalPersistence);
+  console.log('🔐 Auth persistence set to LOCAL');
+
+  // --- Auth UI ---
+  const authArea = document.getElementById('auth-area');
+  authArea.innerHTML = '';
+
+  const signInBtn = document.createElement('button');
+  signInBtn.textContent = 'Sign in with Google';
+  signInBtn.className = 'btn';
+  authArea.appendChild(signInBtn);
+
+  signInBtn.addEventListener('click', async () => {
+    console.log('🔑 Google sign-in started');
+    const provider = new GoogleAuthProvider();
+    await signInWithRedirect(window.auth, provider);
   });
 
-    // Handle Google redirect sign-in result (REQUIRED)
-  import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js')
-    .then(({ getRedirectResult }) => {
-      getRedirectResult(window.auth)
-        .then((result) => {
-          if (result?.user) {
-            console.log('Signed in as:', result.user.uid);
-          }
-        })
-        .catch((err) => {
-          console.error('Redirect sign-in error:', err);
-        });
-    });
+  const signOutBtn = document.createElement('button');
+  signOutBtn.textContent = 'Sign out';
+  signOutBtn.className = 'btn';
+  signOutBtn.style.display = 'none';
+  authArea.appendChild(signOutBtn);
+
+  signOutBtn.addEventListener('click', async () => {
+    await signOut(window.auth);
+  });
+
+  // --- Auth state listener (SOURCE OF TRUTH) ---
+  onAuthStateChanged(window.auth, async (user) => {
+    if (user) {
+      console.log('✅ Auth restored. UID:', user.uid);
+      signInBtn.style.display = 'none';
+      signOutBtn.style.display = 'inline-block';
+    } else {
+      console.log('❌ No user signed in');
+      signInBtn.style.display = 'inline-block';
+      signOutBtn.style.display = 'none';
+    }
+
+    // Always (re)build calendar AFTER auth state is known
+    await buildCalendar();
+  });
 
   
   // DOM elements
