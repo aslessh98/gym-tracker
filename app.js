@@ -10,6 +10,8 @@ const domReady = new Promise(resolve => {
   }
 });
 
+const authArea = document.getElementById('auth-area');
+
 // Helper: promise that resolves when Firebase dispatches the event or window.db exists
 const firebaseReady = new Promise(resolve => {
   if (window.db) {
