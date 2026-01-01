@@ -50,8 +50,8 @@ async function initApp() {
   
   // listen for auth state changes
   import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  console.log("onAuthStateChanged import statement is COMPLETED");
-  onAuthStateChanged(window.auth, (user) => {
+
+  await onAuthStateChanged(window.auth, (user) => {
     if (user) {
       console.log("✅ User signed in:", user.uid);
       // update UI here (hide sign-in, show sign-out, reload calendar, etc.)
