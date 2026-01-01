@@ -32,6 +32,22 @@ Promise.all([domReady, firebaseReady]).then(() => {
 });
 
 async function initApp() {
+
+    // Handle Google redirect sign-in result (REQUIRED)
+  import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js')
+    .then(({ getRedirectResult }) => {
+      getRedirectResult(window.auth)
+        .then((result) => {
+          if (result?.user) {
+            console.log('Signed in as:', result.user.uid);
+          }
+        })
+        .catch((err) => {
+          console.error('Redirect sign-in error:', err);
+        });
+    });
+
+  
   // DOM elements
   const calendarEl = document.getElementById('calendar');
   const monthLabelEl = document.getElementById('month-label');
@@ -316,14 +332,17 @@ async function initApp() {
     authArea.appendChild(signOutBtn);
 
     signInBtn.addEventListener('click', async () => {
-      try {
-        const { GoogleAuthProvider, signInWithPopup } = await import('https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js');
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(window.auth, provider);
-      } catch(err){
-        console.error('Sign-in failed', err);
-        alert('Sign-in failed: ' + (err.message || err));
-      }
+        const { getRedirectResult } =
+          await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+      
+        try {
+          const result = await getRedirectResult(window.auth);
+          if (result?.user) {
+            console.log('Google sign-in completed. UID:', result.user.uid);
+          }
+        } catch (err) {
+          console.error('Redirect sign-in error:', err);
+        }
     });
 
     signOutBtn.addEventListener('click', async () => {
