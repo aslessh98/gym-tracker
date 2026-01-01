@@ -53,42 +53,9 @@
       <p id="selected-date" class="selected-line">Selected: none</p>
     </main>
   </div>
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-  
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyAJ5asDzJczWNgtwK75hvEIeVDL0RC-HM8",
-      authDomain: "gym-tracker-3584f.firebaseapp.com",
-      projectId: "gym-tracker-3584f",
-      storageBucket: "gym-tracker-3584f.firebasestorage.app",
-      messagingSenderId: "1028526681982",
-      appId: "1:1028526681982:web:fa82ebc92005591b060d2f",
-      measurementId: "G-L8PHNYBX84"
-    };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-  
-    // expose for non-module scripts (your app.js)
-    window.firebaseApp = app;
-    window.db = db;
-    window.auth = auth;
-  
-    console.log('Firebase initialized — window.db ready');
-    window.dispatchEvent(new Event('firebase-ready'));
-  </script>
-  
-  <script src="app.js"></script>
+
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="app.js"></script>
+
 </body>
 </html>
