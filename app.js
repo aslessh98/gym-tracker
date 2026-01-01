@@ -33,6 +33,18 @@ Promise.all([domReady, firebaseReady]).then(() => {
 
 async function initApp() {
 
+    // 🔐 Listen for Firebase Auth state (THIS IS THE SOURCE OF TRUTH)
+  const { onAuthStateChanged } =
+    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+
+  onAuthStateChanged(window.auth, (user) => {
+    if (user) {
+      console.log('✅ Auth restored. UID:', user.uid);
+    } else {
+      console.log('❌ No user signed in');
+    }
+  });
+
     // Handle Google redirect sign-in result (REQUIRED)
   import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js')
     .then(({ getRedirectResult }) => {
