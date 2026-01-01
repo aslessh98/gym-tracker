@@ -359,43 +359,7 @@ async function initApp() {
 
   // --- Authentication UI and listener ---
   // Create simple sign-in/out buttons if authArea exists
-  if(authArea){
-    const signInBtn = document.createElement('button');
-    signInBtn.id = 'sign-in-google';
-    signInBtn.textContent = 'Sign in with Google';
-    signInBtn.style.marginRight = '8px';
 
-    const signOutBtn = document.createElement('button');
-    signOutBtn.id = 'sign-out';
-    signOutBtn.textContent = 'Sign out';
-    signOutBtn.style.display = 'none';
-
-    authArea.appendChild(signInBtn);
-    authArea.appendChild(signOutBtn);
-
-    signInBtn.addEventListener('click', async () => {
-        console.log('Google sign-in button clicked'); // 👈 ADD THIS
-        try {
-          const {
-            GoogleAuthProvider,
-            signInWithRedirect
-          } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-      
-          const provider = new GoogleAuthProvider();
-          await signInWithRedirect(window.auth, provider);
-        } catch (err) {
-          console.error('Sign-in failed', err);
-        }
-    });
-
-    signOutBtn.addEventListener('click', async () => {
-      try {
-        await window.auth.signOut();
-      } catch(err){
-        console.error('Sign-out failed', err);
-      }
-    });
-  }
 
   // React to auth state changes: reload calendar when user signs in/out
   if(window.auth && typeof window.auth.onAuthStateChanged === 'function'){
