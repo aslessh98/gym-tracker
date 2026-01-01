@@ -2,6 +2,8 @@
 // Final updated file with Firestore + Auth integration and safe startup sequencing.
 
 // Helper: promise that resolves when DOM is ready
+console.log('app.js loaded');
+
 const domReady = new Promise(resolve => {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => resolve());
@@ -32,6 +34,8 @@ Promise.all([domReady, firebaseReady]).then(() => {
 });
 
 async function initApp() {
+
+  console.log('initApp started');
 
     // 🔐 Listen for Firebase Auth state (THIS IS THE SOURCE OF TRUTH)
   const { onAuthStateChanged } =
