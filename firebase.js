@@ -14,12 +14,19 @@ const firebaseConfig = {
   measurementId: "G-L8PHNYBX84"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase 
+const app = initializeApp(firebaseConfig); 
 
-// Make Firebase GLOBAL (your app.js expects this)
-window.db = getFirestore(app);
-window.auth = getAuth(app);
+// Create service instances 
+const db = getFirestore(app); 
+const auth = getAuth(app); 
 
-// Notify app.js that Firebase is ready
+// Expose globally so app.js can use them 
+window.firebaseApp = app; 
+window.db = db; 
+window.auth = auth; 
+
+console.log("Firebase initialized — window.db and window.auth ready"); 
+
+// Notify app.js that Firebase is ready 
 window.dispatchEvent(new Event("firebase-ready"));
