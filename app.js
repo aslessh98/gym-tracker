@@ -12,10 +12,6 @@ const domReady = new Promise(resolve => {
   }
 });
 
-
-
-
-
 // Helper: promise that resolves when Firebase dispatches the event or window.db exists
 const firebaseReady = new Promise(resolve => {
   if (window.db) {
@@ -35,39 +31,63 @@ Promise.all([domReady, firebaseReady]).then(() => {
 
 async function initApp() {
 
-  console.log('initApp started');
-
-    // 🔐 Listen for Firebase Auth state (THIS IS THE SOURCE OF TRUTH)
+  console.log("initApp started");
+  
   const {
-      setPersistence,
-      browserLocalPersistence,
-      onAuthStateChanged
-    } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+    setPersistence,
+    browserLocalPersistence,
+    onAuthStateChanged,
+    getRedirectResult,
+    GoogleAuthProvider,
+    signInWithRedirect,
+    signInWithPopup,
+    signOut
+  } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
   
-    await setPersistence(window.auth, browserLocalPersistence);
-    console.log('Auth persistence set to LOCAL');
+  // make sure persistence is set
+  await setPersistence(window.auth, browserLocalPersistence);
+  console.log("Auth persistence set to LOCAL");
   
-    onAuthStateChanged(window.auth, (user) => {
-      if (user) {
-        console.log('✅ Auth restored. UID:', user.uid);
-      } else {
-        console.log('❌ No user signed in');
+  // listen for auth state changes
+  onAuthStateChanged(window.auth, (user) => {
+    if (user) {
+      console.log("✅ User signed in:", user.uid);
+      // update UI here (hide sign-in, show sign-out, reload calendar, etc.)
+    } else {
+      console.log("❌ No user signed in");
+      // update UI here (show sign-in, hide sign-out, fallback to localStorage)
+    }
+  });
+  
+  // handle redirect result (needed if you use signInWithRedirect)
+  getRedirectResult(window.auth)
+    .then((result) => {
+      if (result?.user) {
+        console.log("Signed in via redirect:", result.user.uid);
       }
+    })
+    .catch((err) => {
+      console.error("Redirect sign-in error:", err);
     });
-
-    // Handle Google redirect sign-in result (REQUIRED)
-  import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js')
-    .then(({ getRedirectResult }) => {
-      getRedirectResult(window.auth)
-        .then((result) => {
-          if (result?.user) {
-            console.log('Signed in as:', result.user.uid);
-          }
-        })
-        .catch((err) => {
-          console.error('Redirect sign-in error:', err);
-        });
+  
+  // attach button handlers if you have them
+  const signInBtn = document.getElementById("sign-in-google");
+  const signOutBtn = document.getElementById("sign-out");
+  
+  if (signInBtn) {
+    signInBtn.addEventListener("click", () => {
+      const provider = new GoogleAuthProvider();
+      // choose one: redirect or popup
+      signInWithRedirect(window.auth, provider);
+      // OR: signInWithPopup(window.auth, provider);
     });
+  }
+  
+  if (signOutBtn) {
+    signOutBtn.addEventListener("click", () => {
+      signOut(window.auth);
+    });
+  }
 
   
   // DOM elements
