@@ -49,9 +49,7 @@ async function initApp() {
   console.log("Auth persistence set to LOCAL");
   
   // listen for auth state changes
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-  await onAuthStateChanged(window.auth, (user) => {
+  onAuthStateChanged(window.auth, (user) => {
     if (user) {
       console.log("✅ User signed in:", user.uid);
       // update UI here (hide sign-in, show sign-out, reload calendar, etc.)
