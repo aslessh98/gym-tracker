@@ -49,6 +49,8 @@ async function initApp() {
   console.log("Auth persistence set to LOCAL");
   
   // listen for auth state changes
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  console.log("onAuthStateChanged import statement is COMPLETED");
   onAuthStateChanged(window.auth, (user) => {
     if (user) {
       console.log("✅ User signed in:", user.uid);
@@ -357,28 +359,6 @@ async function initApp() {
   btnPrev.addEventListener('click', () => changeMonth(-1));
   btnNext.addEventListener('click', () => changeMonth(1));
 
-  // --- Authentication UI and listener ---
-  // Create simple sign-in/out buttons if authArea exists
-
-
-  // React to auth state changes: reload calendar when user signs in/out
-  if(window.auth && typeof window.auth.onAuthStateChanged === 'function'){
-    window.auth.onAuthStateChanged(async (user) => {
-      if(authArea){
-        const signInBtn = document.getElementById('sign-in-google');
-        const signOutBtn = document.getElementById('sign-out');
-        if(user){
-          if(signInBtn) signInBtn.style.display = 'none';
-          if(signOutBtn) signOutBtn.style.display = 'inline-block';
-        } else {
-          if(signInBtn) signInBtn.style.display = 'inline-block';
-          if(signOutBtn) signOutBtn.style.display = 'none';
-        }
-      }
-      // reload current month (buildCalendar is async)
-      await buildCalendar();
-    });
-  }
 
   // initial render (will load local or remote depending on auth state)
   await buildCalendar();
