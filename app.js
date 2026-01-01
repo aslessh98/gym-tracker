@@ -332,16 +332,17 @@ async function initApp() {
     authArea.appendChild(signOutBtn);
 
     signInBtn.addEventListener('click', async () => {
-        const { getRedirectResult } =
-          await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
-      
+        console.log('Google sign-in button clicked'); // 👈 ADD THIS
         try {
-          const result = await getRedirectResult(window.auth);
-          if (result?.user) {
-            console.log('Google sign-in completed. UID:', result.user.uid);
-          }
+          const {
+            GoogleAuthProvider,
+            signInWithRedirect
+          } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+      
+          const provider = new GoogleAuthProvider();
+          await signInWithRedirect(window.auth, provider);
         } catch (err) {
-          console.error('Redirect sign-in error:', err);
+          console.error('Sign-in failed', err);
         }
     });
 
