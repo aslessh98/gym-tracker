@@ -59,7 +59,7 @@ async function initApp() {
   // Firestore helpers (dynamic imports so we can use CDN modules)
   async function saveAttendanceToFirestore(uid, dateISO, status){
     try{
-      const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js');
+      const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
       const ref = doc(window.db, 'users', uid, 'attendance', dateISO);
       await setDoc(ref, { status: status, updatedAt: Date.now() });
       return true;
@@ -71,7 +71,7 @@ async function initApp() {
 
   async function loadAttendanceFromFirestore(uid, monthPrefix){
     try{
-      const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js');
+      const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
       const start = monthPrefix + '-01';
       const end = monthPrefix + '-31';
       const q = query(collection(window.db, 'users', uid, 'attendance'),
