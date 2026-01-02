@@ -46,6 +46,9 @@ onAuthStateChanged(auth, user => {
     loginBtn.style.display = "inline-flex";
     userInfo.style.display = "none";
   }
+  
+  await buildCalendar();
+  
 });
 /*
 onAuthStateChanged(auth, user => {
