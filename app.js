@@ -24,7 +24,17 @@ logoutBtn.onclick = async () => {
   await signOut(auth);
 };
 
+let lastAuthUid = null;
+
 onAuthStateChanged(auth, user => {
+  const uid = user?.uid || null;
+
+  // Avoid unnecessary reloads
+  if (uid === lastAuthUid) return;
+  lastAuthUid = uid;
+
+  console.log("Auth changed → reloading calendar", uid);
+
   const userInfo = document.getElementById("user-info");
 
   if (user) {
