@@ -190,6 +190,7 @@ async function initApp() {
         const data = docSnap.data();
         out[docSnap.id] = data.status;
       });
+      console.log("Loading Firestore for UID:", uid, "month:", monthPrefix);
       return out;
     } catch(err){
       console.error('Failed to load from Firestore', err);
@@ -253,6 +254,7 @@ async function initApp() {
 
     // If signed in, try to load from Firestore for this month
     const user = window.auth && window.auth.currentUser;
+    console.log("Auth user at calendar build:", user);
     if(user){
       const monthPrefix = `${year}-${String(month+1).padStart(2,'0')}`;
       const remote = await loadAttendanceFromFirestore(user.uid, monthPrefix);
