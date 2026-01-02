@@ -25,6 +25,20 @@ logoutBtn.onclick = async () => {
 };
 
 onAuthStateChanged(auth, user => {
+  const userInfo = document.getElementById("user-info");
+
+  if (user) {
+    document.getElementById("name").textContent = user.displayName || "User";
+
+    loginBtn.style.display = "none";
+    userInfo.style.display = "inline-flex";
+  } else {
+    loginBtn.style.display = "inline-flex";
+    userInfo.style.display = "none";
+  }
+});
+/*
+onAuthStateChanged(auth, user => {
   if (user) {
     document.getElementById("name").textContent = user.displayName;
     //document.getElementById("email").textContent = user.email;
@@ -39,7 +53,7 @@ onAuthStateChanged(auth, user => {
     logoutBtn.style.display = "none";
   }
 });
-
+*/
 
 // app.js - enhanced UI with month navigation, today highlight, multi-select
 // Final updated file with Firestore + Auth integration and safe startup sequencing.
