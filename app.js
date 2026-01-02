@@ -46,7 +46,7 @@ onAuthStateChanged(window.auth, async (user) => {
   }
 
   // --- DATA ---
-  await buildCalendar();
+  //await buildCalendar();
 });
 /*
 onAuthStateChanged(auth, user => {
