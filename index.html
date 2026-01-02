@@ -19,7 +19,22 @@
       <header class="header">
         <div class="title-wrap">
           <h1>Gym Tracker</h1>
+
+          <div id="auth-area" class="auth-area">
+            <button id="loginBtn" class="login-btn">
+              <span class="google-dot"></span>
+              Sign in with Google
+            </button>
           
+            <div id="user-info" class="user-pill" style="display:none;">
+              <span class="user-name" id="name"></span>
+              <button id="logoutBtn" class="logout-btn" title="Sign out">
+                ⎋
+              </button>
+            </div>
+          </div>
+          
+          <!--
           <div id="auth-area">
             <button id="loginBtn">Sign in with Google</button>
             <div id="user-info" style="display:none;"> 
@@ -27,6 +42,7 @@
             </div>
             <button id="logoutBtn" style="display:none;">Logout</button>
           </div>
+          -->
           
           <div id="month-nav-row" class="month-nav">
             <button id="prev-month" class="nav-btn" aria-label="Previous month">‹</button>
