@@ -41,16 +41,6 @@ onAuthStateChanged(auth, user => {
 });
 
 
-
-
-
-
-
-
-
-
-
-
 // app.js - enhanced UI with month navigation, today highlight, multi-select
 // Final updated file with Firestore + Auth integration and safe startup sequencing.
 
@@ -253,7 +243,7 @@ async function initApp() {
     let attendance = loadAttendanceLocal();
 
     // If signed in, try to load from Firestore for this month
-    const user = window.auth && window.auth.currentUser;
+    const user = window.auth.currentUser;
     console.log("Auth user at calendar build:", user);
     if(user){
       const monthPrefix = `${year}-${String(month+1).padStart(2,'0')}`;
@@ -407,12 +397,27 @@ async function initApp() {
 
   // initial render (will load local or remote depending on auth state)
   //await buildCalendar();
-  import {
+  /*import {
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   
   onAuthStateChanged(window.auth, async (user) => {
-    console.log("Auth state resolved:", user ? user.uid : "no user");
+    console.log("Auth state resolved:", user ? user.email : "no user");
+    await buildCalendar();
+  });*/
+
+  let authResolved = false;
+
+  onAuthStateChanged(window.auth, async (user) => {
+    console.log("Auth resolved:", user?.email || "no user");
+  
+    // Prevent double runs
+    if (authResolved) return;
+    authResolved = true;
+  
     await buildCalendar();
   });
+  
+
+  
 }
