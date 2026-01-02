@@ -291,3 +291,77 @@ html, body {
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
+
+/* --- Auth UI --- */
+.auth-area{
+  display:flex;
+  justify-content:center;
+  margin-top:10px;
+}
+
+/* Login button */
+.login-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 16px;
+  border-radius:999px;
+  border:none;
+  cursor:pointer;
+  font-weight:700;
+  background: linear-gradient(135deg, #ffffff, #f5f7ff);
+  color:#0b1220;
+  box-shadow: 0 8px 24px rgba(11,18,32,0.12);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.login-btn:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(11,18,32,0.18);
+}
+
+/* Small Google accent dot */
+.google-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background: linear-gradient(135deg, #ea4335, #4285f4, #34a853, #fbbc05);
+}
+
+/* Logged-in user pill */
+.user-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px 8px 14px;
+  border-radius:999px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(245,247,255,0.96));
+  box-shadow: 0 8px 26px rgba(11,18,32,0.12);
+}
+
+/* User name */
+.user-name{
+  font-weight:700;
+  font-size:14px;
+  color:#0b1220;
+  white-space:nowrap;
+}
+
+/* Logout icon button */
+.logout-btn{
+  border:none;
+  background: transparent;
+  cursor:pointer;
+  font-size:16px;
+  font-weight:700;
+  color: var(--muted);
+  padding:4px 6px;
+  border-radius:8px;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.logout-btn:hover{
+  background: rgba(239,68,68,0.12);
+  color:#ef4444;
+}
+
