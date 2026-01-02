@@ -406,5 +406,13 @@ async function initApp() {
 
 
   // initial render (will load local or remote depending on auth state)
-  await buildCalendar();
+  //await buildCalendar();
+  import {
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  
+  onAuthStateChanged(window.auth, async (user) => {
+    console.log("Auth state resolved:", user ? user.uid : "no user");
+    await buildCalendar();
+  });
 }
