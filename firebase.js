@@ -22,10 +22,11 @@ const db = getFirestore(app);
 const auth = getAuth(app); 
 
 // Expose globally so app.js can use them 
-window.firebaseApp = app; 
-window.db = db; /window.auth = auth; 
+// window.firebaseApp = app; 
+// window.db = db; 
+// window.auth = auth; 
 
 console.log("Firebase initialized — window.db and window.auth ready"); 
 
 // Notify app.js that Firebase is ready 
-window.dispatchEvent(new Event("firebase-ready"));
+// window.dispatchEvent(new Event("firebase-ready"));
