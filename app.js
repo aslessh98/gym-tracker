@@ -26,7 +26,7 @@ logoutBtn.onclick = async () => {
 
 let lastAuthUid = null;
 
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(window.auth, async (user) => {
   const uid = user?.uid || null;
 
   // Avoid unnecessary reloads
@@ -35,6 +35,21 @@ onAuthStateChanged(auth, user => {
 
   console.log("Auth changed → reloading calendar", uid);
 
+  // --- UI ---
+  if (user) {
+    document.getElementById("name").textContent = user.displayName || "User";
+    loginBtn.style.display = "none";
+    document.getElementById("user-info").style.display = "inline-flex";
+  } else {
+    loginBtn.style.display = "inline-flex";
+    document.getElementById("user-info").style.display = "none";
+  }
+
+  // --- DATA ---
+  await buildCalendar();
+});
+/*
+onAuthStateChanged(auth, user => {
   const userInfo = document.getElementById("user-info");
 
   if (user) {
@@ -46,10 +61,8 @@ onAuthStateChanged(auth, user => {
     loginBtn.style.display = "inline-flex";
     userInfo.style.display = "none";
   }
-  
-  await buildCalendar();
-  
 });
+*/
 /*
 onAuthStateChanged(auth, user => {
   if (user) {
