@@ -1,7 +1,7 @@
 // firebase.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // YOUR FIREBASE CONFIG
 const firebaseConfig = {
@@ -23,8 +23,7 @@ const auth = getAuth(app);
 
 // Expose globally so app.js can use them 
 window.firebaseApp = app; 
-window.db = db; 
-window.auth = auth; 
+window.db = db; /window.auth = auth; 
 
 console.log("Firebase initialized — window.db and window.auth ready"); 
 
