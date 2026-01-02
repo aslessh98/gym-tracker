@@ -24,14 +24,14 @@ logoutBtn.onclick = async () => {
   await signOut(auth);
 };
 
-let lastAuthUid = null;
+//let lastAuthUid = null;
 
 onAuthStateChanged(window.auth, async (user) => {
-  const uid = user?.uid || null;
+  //const uid = user?.uid || null;
 
   // Avoid unnecessary reloads
-  if (uid === lastAuthUid) return;
-  lastAuthUid = uid;
+  //if (uid === lastAuthUid) return;
+  //lastAuthUid = uid;
 
   console.log("Auth changed → reloading calendar", uid);
 
@@ -46,7 +46,7 @@ onAuthStateChanged(window.auth, async (user) => {
   }
 
   // --- DATA ---
-  //await buildCalendar();
+  await buildCalendar();
 });
 /*
 onAuthStateChanged(auth, user => {
