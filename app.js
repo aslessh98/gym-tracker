@@ -1,3 +1,56 @@
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import { auth } from "./firebase.js";
+
+const provider = new GoogleAuthProvider();
+
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
+loginBtn.onclick = async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+logoutBtn.onclick = async () => {
+  await signOut(auth);
+};
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById("name").textContent = user.displayName;
+    //document.getElementById("email").textContent = user.email;
+    //document.getElementById("picture").src = user.photoURL;
+
+    document.getElementById("user-info").style.display = "block";
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+  } else {
+    document.getElementById("user-info").style.display = "none";
+    loginBtn.style.display = "inline-block";
+    logoutBtn.style.display = "none";
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
 // app.js - enhanced UI with month navigation, today highlight, multi-select
 // Final updated file with Firestore + Auth integration and safe startup sequencing.
 
@@ -33,7 +86,7 @@ async function initApp() {
 
   console.log("initApp started");
   
-  const {
+  /*const {
     onAuthStateChanged,
     getRedirectResult,
     signInWithRedirect,
@@ -80,7 +133,7 @@ async function initApp() {
       signOut(window.auth);
     });
   }
-
+  */
   
   // DOM elements
   const calendarEl = document.getElementById('calendar');
@@ -97,7 +150,7 @@ async function initApp() {
   }
 
   // Optional auth UI container (if present in your HTML)
-  const authArea = document.getElementById('auth-area');
+  //const authArea = document.getElementById('auth-area');
 
   const STORAGE_KEY = 'gym_attendance_v1';
   let selectedDates = new Set();
